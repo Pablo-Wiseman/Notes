@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Notes</string>
+    <string name="enter_note">enter note</string>
+    <string name="low">Low</string>
+    <string name="medium">Medium</string>
+    <string name="high">High</string>
+    <string name="save_note">save note</string>
 </resources>
