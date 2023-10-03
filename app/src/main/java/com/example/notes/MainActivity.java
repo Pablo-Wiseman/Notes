@@ -8,6 +8,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,7 +22,6 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton buttonAddNote;
     private NotesAdapter notesAdapter;
     private NoteDataBase noteDataBase;
-    private Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +33,15 @@ public class MainActivity extends AppCompatActivity {
 
         notesAdapter = new NotesAdapter();
         recyclerViewNotes.setAdapter(notesAdapter);
+
+        noteDataBase.notesDao().getNotes().observe(
+                this,
+                new Observer<List<Note>>() {
+            @Override
+            public void onChanged(List<Note> notes) {
+                notesAdapter.setNotes(notes);
+            }
+        });
         notesAdapter.setOnNoteClickListener(new NotesAdapter.OnNoteClickListener() {
             @Override
             public void onNoteClick(Note note) {
@@ -58,13 +67,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         noteDataBase.notesDao().remove(note.getId());
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                updateNotes();
-
-                            }
-                        });
                     }
                 });
                 thread.start();
@@ -83,32 +85,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        updateNotes();
-    }
-
-
     private void initViews() {
         recyclerViewNotes = findViewById(R.id.recyclerViewNotes);
         buttonAddNote = findViewById(R.id.buttonAddNote);
     }
 
-    private void updateNotes() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                List<Note> notes = noteDataBase.notesDao().getNotes();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        notesAdapter.setNotes(notes);
-                    }
-                });
-            }
-        });
-        thread.start();
-
-    }
 }
