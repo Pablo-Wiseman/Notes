@@ -27,11 +27,6 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
         notifyDataSetChanged();
     }
 
-    private OnNoteClickListener onNoteClickListener;
-
-    public void setOnNoteClickListener(OnNoteClickListener onNoteClickListener) {
-        this.onNoteClickListener = onNoteClickListener;
-    }
 
     @NonNull
     @Override
@@ -61,12 +56,6 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
         }
         int color = ContextCompat.getColor(viewHolder.itemView.getContext(), colorResId);
         viewHolder.textViewNote.setBackgroundColor(color);
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onNoteClickListener.onNoteClick(note);
-            }
-        });
 
     }
 
@@ -81,8 +70,5 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
             super(itemView);
             textViewNote = itemView.findViewById(R.id.textViewNote);
         }
-    }
-    interface OnNoteClickListener{
-        void onNoteClick(Note note);
     }
 }

@@ -3,10 +3,12 @@ package com.example.notes;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        viewModel = new MainViewModel(getApplication());
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+
         initViews();
 
         notesAdapter = new NotesAdapter();
@@ -35,18 +38,13 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getNotes().observe(
                 this,
                 new Observer<List<Note>>() {
-            @Override
-            public void onChanged(List<Note> notes) {
-                notesAdapter.setNotes(notes);
-            }
-        });
-        notesAdapter.setOnNoteClickListener(new NotesAdapter.OnNoteClickListener() {
-            @Override
-            public void onNoteClick(Note note) {
-
-            }
-        });
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
+                    @Override
+                    public void onChanged(List<Note> notes) {
+                        notesAdapter.setNotes(notes);
+                    }
+                });
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
+                new ItemTouchHelper.SimpleCallback(
                 0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT
         ) {
             @Override
