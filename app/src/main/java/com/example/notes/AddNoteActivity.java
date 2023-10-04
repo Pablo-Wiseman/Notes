@@ -1,6 +1,8 @@
 package com.example.notes;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,13 +20,21 @@ public class AddNoteActivity extends AppCompatActivity {
     private RadioButton radioButtonLow;
     private RadioButton radioButtonMedium;
     private Button buttonSaveNote;
-    private NoteDataBase noteDataBase;
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private AddNoteViewModel viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_note);
-        noteDataBase = NoteDataBase.getInstance(getApplication());
+        viewModel = new ViewModelProvider(this).get(AddNoteViewModel.class);
+        viewModel.getShouldCloseScreen().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean shouldClose) {
+                if(shouldClose) {
+                    finish();
+                }
+            }
+        });
         initViews();
 
         buttonSaveNote.setOnClickListener(new View.OnClickListener() {
@@ -35,40 +45,28 @@ public class AddNoteActivity extends AppCompatActivity {
         });
     }
 
-    private void initViews(){
+    private void initViews() {
         editTextNote = findViewById(R.id.editTextNote);
         radioButtonLow = findViewById(R.id.radioButtonLow);
         radioButtonMedium = findViewById(R.id.radioButtonMedium);
         buttonSaveNote = findViewById(R.id.buttonSaveNote);
     }
 
-    public static Intent newIntent(Context context){
+    public static Intent newIntent(Context context) {
         return new Intent(context, AddNoteActivity.class);
     }
 
-    private void saveNote(){
+    private void saveNote() {
         String text = editTextNote.getText().toString().trim();
         int priority;
-        if(radioButtonLow.isChecked()){
+        if (radioButtonLow.isChecked()) {
             priority = 0;
-        } else if(radioButtonMedium.isChecked()){
+        } else if (radioButtonMedium.isChecked()) {
             priority = 1;
         } else {
             priority = 2;
         }
         Note note = new Note(text, priority);
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                noteDataBase.notesDao().add(note);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        finish();
-                    }
-                });
-            }
-        });
-        thread.start();
+        viewModel.saveNote(note);
     }
 }
