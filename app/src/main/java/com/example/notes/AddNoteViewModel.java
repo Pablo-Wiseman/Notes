@@ -1,6 +1,8 @@
 package com.example.notes;
 
 import android.app.Application;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -13,6 +15,7 @@ import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Action;
+import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class AddNoteViewModel extends AndroidViewModel {
@@ -39,6 +42,11 @@ public class AddNoteViewModel extends AndroidViewModel {
                     public void run() throws Throwable {
                         shouldCloseScreen.setValue(true);
                     }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Throwable {
+                        Toast.makeText(AddNoteViewModel.this.getApplication(), "Error add note", Toast.LENGTH_SHORT).show();
+                    }
                 });
        compositeDisposable.add(disposable);
     }
@@ -46,7 +54,8 @@ public class AddNoteViewModel extends AndroidViewModel {
        return Completable.fromAction(new Action() {
             @Override
             public void run() throws Throwable {
-                notesDao.add(note);
+//                notesDao.add(note);
+                throw new Exception();
             }
         });
 

@@ -1,6 +1,7 @@
 package com.example.notes;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -39,19 +40,26 @@ public class MainViewModel extends AndroidViewModel {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<List<Note>>() {
-                    @Override
-                    public void accept(List<Note> notesFromDb) throws Throwable {
-                        notes.setValue(notesFromDb);
-                    }
-                });
+                               @Override
+                               public void accept(List<Note> notesFromDb) throws Throwable {
+                                   notes.setValue(notesFromDb);
+                               }
+                           },
+                        new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) throws Throwable {
+                                Log.d("MainViewModel", "Error updateList");
+                            }
+                        });
         compositeDisposable.add(disposable);
     }
 
-    private Single<List<Note>>getNotesRx(){
+    private Single<List<Note>> getNotesRx() {
         return Single.fromCallable(new Callable<List<Note>>() {
             @Override
             public List<Note> call() throws Exception {
                 return noteDataBase.notesDao().getNotes();
+//                throw new Exception();
             }
         });
     }
@@ -66,16 +74,22 @@ public class MainViewModel extends AndroidViewModel {
                     public void run() throws Throwable {
                         updateList();
                     }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Throwable {
+                        Log.d("MainViewModel", "remove");
+                    }
                 });
 
         compositeDisposable.add(disposable);
     }
 
-    private Completable removeRx(Note note){
+    private Completable removeRx(Note note) {
         return Completable.fromAction(new Action() {
             @Override
             public void run() throws Throwable {
-                noteDataBase.notesDao().remove(note.getId());
+//                noteDataBase.notesDao().remove(note.getId());
+                throw new Exception();
             }
         });
     }
