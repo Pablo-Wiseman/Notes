@@ -24,7 +24,6 @@ public class MainViewModel extends AndroidViewModel {
 
     private NoteDataBase noteDataBase;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
-    private MutableLiveData<List<Note>> notes = new MutableLiveData<>();
 
     public MainViewModel(@NonNull Application application) {
         super(application);
@@ -32,47 +31,20 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Note>> getNotes() {
-        return notes;
+
+        return noteDataBase.notesDao().getNotes();
     }
 
-    public void updateList() {
-        Disposable disposable = getNotesRx()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<List<Note>>() {
-                               @Override
-                               public void accept(List<Note> notesFromDb) throws Throwable {
-                                   notes.setValue(notesFromDb);
-                               }
-                           },
-                        new Consumer<Throwable>() {
-                            @Override
-                            public void accept(Throwable throwable) throws Throwable {
-                                Log.d("MainViewModel", "Error updateList");
-                            }
-                        });
-        compositeDisposable.add(disposable);
-    }
-
-    private Single<List<Note>> getNotesRx() {
-        return Single.fromCallable(new Callable<List<Note>>() {
-            @Override
-            public List<Note> call() throws Exception {
-                return noteDataBase.notesDao().getNotes();
-//                throw new Exception();
-            }
-        });
-    }
 
     public void remove(Note note) {
 
-        Disposable disposable = removeRx(note)
+        Disposable disposable =  noteDataBase.notesDao().remove(note.getId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action() {
                     @Override
                     public void run() throws Throwable {
-                        updateList();
+                       Log.d("MainViewModel", "Removed: " + note.getId());
                     }
                 }, new Consumer<Throwable>() {
                     @Override
@@ -84,15 +56,6 @@ public class MainViewModel extends AndroidViewModel {
         compositeDisposable.add(disposable);
     }
 
-    private Completable removeRx(Note note) {
-        return Completable.fromAction(new Action() {
-            @Override
-            public void run() throws Throwable {
-//                noteDataBase.notesDao().remove(note.getId());
-                throw new Exception();
-            }
-        });
-    }
 
     @Override
     protected void onCleared() {
