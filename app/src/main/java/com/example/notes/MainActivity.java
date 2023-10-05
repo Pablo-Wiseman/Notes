@@ -75,11 +75,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onResume(){
-        super.onResume();
-        viewModel.updateList();
-    }
 
     private void initViews() {
         recyclerViewNotes = findViewById(R.id.recyclerViewNotes);
